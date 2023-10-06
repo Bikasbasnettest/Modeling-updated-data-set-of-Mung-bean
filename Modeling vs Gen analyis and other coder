@@ -1,0 +1,201 @@
+setwd("E:/Fertility problems in Mung bean/Mung Final analysis Folder")
+Bikas<-read.csv("E:/Fertility problems in Mung bean/Mung Final analysis Folder/MFA.csv", header = TRUE)
+attach(Bikas)
+print(Bikas)
+options(max.print = 1000)
+Bikas$REP=as.factor(REP)
+Bikas$VAR=as.factor(VAR)
+require(gvlma)
+fit=lm(GY.ha ~REP+VAR) 
+gvmodelfit=gvlma(fit) 
+gvmodelfit
+boxplot(GY.ha )
+attach(Bikas)
+Bikas
+anova(lm(GY.ha ~(REP+VAR)))
+require(agricolae)
+aggregate(GY.ha ,by=list(VAR),mean)
+aggregate(GY.ha ,by=list(VAR),sd)
+sd_var<-sd(GY.ha )
+sample_size<-length(GY.ha )
+standard_error<-sd_var/sqrt(sample_size)
+standard_error
+dmrtcomparison<-with(Bikas,duncan.test(GY.ha , VAR, 222 , 0.016 ))      
+dmrtcomparison
+#to study the all the PCV, gcv, heritablity and other traits of data
+View(Bikas)
+library(variability)
+Het<-gen.var(Bikas[3:39],Bikas$VAR,Bikas$REP)
+Het
+
+#to study the PCA OF ALL THE DATA
+View(Bikas)
+sc1<-scale(Bikas[-1 : -2], center = TRUE)
+sc1
+getwd()
+require(factoextra)
+#for the missing value handeling
+col_means<- colMeans(sc1, na.rm = TRUE)
+missing_indices <- is.na(sc1)
+sc1[missing_indices] <- col_means[missing_indices]
+sc1
+missing_values<-any(is.na(sc1))
+missing_values
+missing_values_count <- sum(is.na(sc1))
+cat("Number of missing values:", missing_values_count, "\n")
+missing_values_matrix<-is.na(sc1)
+missing_values_count <- colSums(missing_values_matrix)
+print(missing_values_count)
+#for the PCA STRACTURAL VALUE DECOMPOSITIONS
+PCa1<-princomp(sc1)
+PCa1
+biplot(PCa1)
+PCa1$scores
+#for the singular value decompositins
+pca2<-prcomp(sc1)
+pca2
+pca2$x
+summary(pca2)
+biplot(pca2)
+#for the visualization 
+fviz_pca(pca2)
+fviz_pca_biplot(pca2, repel = TRUE)
+#to get the direction of the variables 
+fviz_pca_var(pca2, repel = TRUE)
+?fviz_pca_var
+#alternative code for PCA_BIPLOT
+fviz_pca_biplot(
+  pca2,
+  axes = c(1, 2),
+  geom = c("point", "text"),
+  geom.var = c("arrow", "text"),
+  col.ind = "blue",
+  fill.ind = "white",
+  col.var = "green",
+  fill.var = "white",
+  gradient.cols = NULL,
+  label = "all",
+  invisible = "none",
+  repel = TRUE,
+  habillage = "none",
+  palette = NULL,
+  addEllipses = FALSE,
+  title = "PCA - Biplot",
+)
+#alternative code for the PCA variables
+fviz_pca_var(pca2,repel = TRUE)
+fviz_pca_var(pca2, col.var = "contrib",
+             repel = TRUE,
+             gradient.cols = c("black", "darkgreen", "red"),
+             ggtheme = theme_minimal())
+?fviz_pca_var 
+fviz_screeplot(pca2)
+require(FactoMineR)
+fpca<-PCA(sc1, ncp = 37)
+fpca
+fpca$eig
+fpca$ind$coord
+fpca$ind$cos2
+fpca$ind$contrib
+#scatter plot of pca
+fviz_pca_ind(fpca)
+fviz_pca_ind(fpca, repel = TRUE, col.ind = "cos2")
+fpca$eig
+fviz_screeplot(fpca, choice="eigenvalue", ncp=31)
+fpca$eig
+#for transporting the data into excel sheet we have to mention the data into matrix 
+table1<-fpca$eig
+class(table1)
+table1<-as.data.frame(table1)
+class(table1)
+library(writexl)
+write_xlsx(table1, "eigen value of my mung bean pca.xlsx")
+#for the elbow method for the maximum Principle componets
+plot(table1$`cumulative percentage of variance`)
+pdf("my_plot.pdf", width = 8, height = 6)
+plot(table1$`cumulative percentage of variance`)
+plot(table1$eigenvalue, col = "darkgreen")
+#to calculate the rotated componets
+library(psych)
+rpca <-principal(sc1, nfactors = 12, rotate = "varimax", scores = T)
+rpca
+rpca$communality
+print(rpca$loadings, digits = 3, cutoff = 0)
+barplot(rpca$loadings)
+barplot(rpca$loadings, beside = T)
+barplot(rpca$loadings, beside = T, col = "blue", main = "Rotated component matrix")
+#to color the different level graph
+library(pals)
+barplot(rpca$loadings, beside = T, col = brewer.accent(18), main = "Rotated component matrix")
+barplot(rpca$loadings, beside = T, col = brewer.greens(18), main = "Rotated component matrix")
+barplot(rpca$loadings, beside = T, col = brewer.spectral(18), main = "Rotated component matrix")
+barplot(rpca$loadings, beside = T, col = alphabet(n=18), main = "Rotated component matrix")
+#for the BLUP model validation of the Code
+library(metan)
+library(metan)
+setwd("E:/Fertility problems in Mung bean/Mung Final analysis Folder")
+Bikas<-read.csv("E:/Fertility problems in Mung bean/Mung Final analysis Folder/MFA.csv", header = TRUE)
+attach(Bikas)
+print(Bikas)
+library(metan)
+?gamem
+model<-gamem(Bikas,
+             gen = VAR,
+             rep= REP,
+             resp = everything())
+a=gmd(model,"blupg")
+a
+print(a,n=2000)
+aku<-mgidi(model)
+#for the extraction of the all data sets
+table2<-aku$PCA
+table3<-aku$FA
+table4<-aku$MGIDI
+table4<-aku$sel_dif
+table5<-aku$contri_fac_rank
+table6<-aku$contri_fac_rank_sel
+class(table2)
+class(table3)
+class(table4)
+class(table5)
+class(table6)
+table2<-as.data.frame(table2)
+table3<-as.data.frame(table3)
+table4<-as.data.frame(table4)
+table5<-as.data.frame(table5)
+table6<-as.data.frame(table6)
+class(table2)
+class(table3)
+class(table4)
+class(table5)
+class(table6)
+library(writexl)
+write_xlsx(table2, "eigen value of my mung bean pca.xlsx")
+write_xlsx(table3, "FAmy mung bean.xlsx")
+write_xlsx(table4, "selection differential of the Mung bean.xlsx")
+write_xlsx(table5, "contribution factor rank of the genotypes.xlsx")
+write_xlsx(table6, "contribution factor rank of the selected genotypes.xlsx")
+getwd()
+p1<-plot(aku, type = "contribution")
+p2<-plot(aku)
+p2
+p1+p2
+arrange_ggplot(p1, p2)
+#new method
+get_model_data(model, "lrt")
+get_model_data(model, "vcomp")
+# Genetic parameters
+get_model_data(model, "genpar")
+
+# random effects
+get_model_data(model, "ranef")
+# Predicted values
+predict(model)
+?mgidi
+plot(aku,
+     type = "contribution",
+     genotypes = "all",
+     x.lab = "Treatments",
+     width = 1,
+     title = "The strengths and weaknesses view of treatments",
+     rotate = TRUE)
