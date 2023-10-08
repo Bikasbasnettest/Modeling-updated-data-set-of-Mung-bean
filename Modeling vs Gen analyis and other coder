@@ -199,3 +199,31 @@ plot(aku,
      width = 1,
      title = "The strengths and weaknesses view of treatments",
      rotate = TRUE)
+#for the Regression aalyiss of the Code of the Mung bean
+
+#regression analysis of the Mung bean data
+library(ggpubr)
+library(ggplot2)
+#############################################################################
+op<-ggscatter(Bikas,x = "X30SPAD", y = "GY.ha", add = "reg.line") +
+  stat_cor(label.x=80,label.y = 5.1,
+           aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~"))) +
+  stat_regline_equation(label.x = 80,label.y = 5.5, size = 4)
+do<-op+ggtitle("(a)")+labs(x = "SPAD value at 30 DAS",
+                           y = "Grain yield ton/ha")
+do
+#alter code
+sA1<-ggplot(data = Bikas, aes(x = X30SPAD, y = GY.ha)) +
+  geom_point() +geom_smooth(method = "lm", se = FALSE) +stat_cor(label.x = 5, label.y = 5.1, aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~"))) +
+  
+  stat_regline_equation(label.x = 5, label.y = 5.5, size = 4, aes(label = paste(..eq.label.., ..rr.label.., sep = "~`,`~"))) +
+  
+  labs(x = " 30 DAS spade Reading", y = "Grain yield ton/ha") +
+  ggtitle("(f)")
+
+plot(sA1)
+#for Combining the Multiple Plot
+library(patchwork)
+Comboplot3<-(s11|s10)/(s9|s8)
+ggsave(filename = "Regression analysis study of Mungbean3.png", plot = Comboplot3,
+       width = 20, height = 30, dpi = 2500, units = "cm")
