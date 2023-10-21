@@ -51,7 +51,7 @@ PCa1<-princomp(sc1)
 PCa1
 biplot(PCa1)
 PCa1$scores
-#for the singular value decompositins
+#for the singular value decompositins most used for the PCA Studies 
 pca2<-prcomp(sc1)
 pca2
 pca2$x
@@ -92,6 +92,14 @@ fviz_pca_var(pca2, col.var = "contrib",
 fviz_screeplot(pca2)
 #alternative code for scree Plot
 fviz_eig(pca2, addlabels = TRUE)
+#alternative code for the scree Plot
+SP1<-fviz_eig(pca2, addlabels = TRUE)
+SP1
+SP2<-fviz_screeplot(fpca, choice="eigenvalue", ncp=10, addlabels = TRUE, barfill="green")
+SP2
+library(gridExtra)
+grid.arrange(SP1,SP2, ncol=1, top='Scree Plot of Eigen value and % of explain variance')
+##3333#33#3333
 var=get_pca_var(pca2)
 #to see the Different variables contribution in PCs or different PCs
 library(corrplot)
