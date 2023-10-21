@@ -90,6 +90,19 @@ fviz_pca_var(pca2, col.var = "contrib",
              ggtheme = theme_minimal())
 ?fviz_pca_var 
 fviz_screeplot(pca2)
+#alternative code for scree Plot
+fviz_eig(pca2, addlabels = TRUE)
+var=get_pca_var(pca2)
+#to see the Different variables contribution in PCs or different PCs
+library(corrplot)
+corrplot(var$cos2, is.corr = FALSE)
+#too see the Contribution variables for Different PC
+fviz_cos2(pca2,choice = "var", axes = 1:2)
+#too see the contribution of Particular contribution by variables
+a<-fviz_contrib(pca2, choice = "var",fill = "brown", axes = 1, top = 10)
+a
+
+#another method of PCA study Through Factominer
 require(FactoMineR)
 fpca<-PCA(sc1, ncp = 37)
 fpca
