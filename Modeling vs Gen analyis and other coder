@@ -82,7 +82,122 @@ fviz_pca_biplot(
   addEllipses = FALSE,
   title = "PCA - Biplot",
 )
-#alternative code for the PCA variables
+#3#3333##33#33#333#3alternative codes for PCA elipse Biplot, Cluster Genotypes and associated traits represnts on each elipse
+#elipse added biplot whole Plot
+fviz_pca_biplot(
+  pca2,
+  axes = c(1, 2),
+  geom = c("point", "text"),
+  geom.var = c("arrow", "text"),
+  col.ind = "darkgreen",
+  fill.ind = "white",
+  col.var = "black",
+  fill.var = "white",
+  gradient.cols = NULL,
+  label = "var",
+  invisible = "none",
+  repel = TRUE,
+  habillage = "none",
+  palette = NULL,
+  addEllipses = TRUE,  # Add ellipses to the biplot
+  title = "PCA - Biplot"
+)
+#for addition of the PCA cluster elipse plot
+
+library(factoextra)
+library(cluster)  # Load the cluster library
+
+# Assuming you already have your data loaded in the 'data' variable
+pca_result <- prcomp(sc1, scale. = TRUE)  # Perform PCA
+
+# Perform clustering (for example, using k-means)
+num_clusters <- 4  # Replace with the desired number of clusters
+kmeans_result <- kmeans(pca_result$x[, 1:2], centers = num_clusters)
+cluster_assignments <- kmeans_result$cluster
+# Create the PCA biplot with ellipses based on clusters
+# Create a color palette for the clusters
+cluster_colors <- c("red", "blue", "green","lightgreen")  # Customize with your desired colors
+
+# Map cluster assignments to colors
+individual_colors <- cluster_colors[cluster_assignments]
+
+# Create the PCA biplot with ellipses based on clusters
+biplot<-fviz_pca_biplot(
+  pca_result,
+  geom = c("point", "text"),
+  geom.var = c("arrow", "text"),
+  col.ind = individual_colors,  # Use the mapped colors for individuals
+  fill.ind = "white",
+  col.var = "black",
+  fill.var = "white",
+  gradient.cols = NULL,
+  label = "var",
+  invisible = "none",
+  repel = TRUE,
+  habillage = "none",
+  palette = NULL,
+  addEllipses = TRUE,  # Add ellipses to the biplot
+  title = "PCA - Biplot"
+)
+#3##33#3333 for addition of the Genotypes in each cluster
+library(factoextra)
+library(cluster)
+library(ggplot2)
+library(dplyr)
+
+# Create a PCA biplot with ellipses based on clusters and add genotypes
+biplot <- fviz_pca_biplot(
+  pca_result,
+  geom = c("point", "text"),
+  geom.var = c("arrow", "text"),
+  col.ind = individual_colors,
+  fill.ind = "white",
+  col.var = "black",
+  fill.var = "white",
+  gradient.cols = NULL,
+  label = "var",
+  invisible = "none",
+  repel = TRUE,
+  habillage = "none",
+  palette = NULL,
+  addEllipses = TRUE,
+  title = "PCA - Biplot"
+)
+biplot
+###3333 addition of the Genotypes name in each cluster
+genotype_data <- data.frame(Cluster = cluster_assignments, Genotype = genotype_labels)
+genotype_data
+# Create a PCA biplot with ellipses based on clusters
+biplot <- fviz_pca_biplot(
+  pca_result,
+  geom = c("point", "text"),
+  geom.var = c("arrow", "text"),
+  col.ind = individual_colors,
+  fill.ind = "white",
+  col.var = "black",
+  fill.var = "white",
+  gradient.cols = NULL,
+  label = "var",
+  invisible = "none",
+  repel = TRUE,
+  habillage = "none",
+  palette = NULL,
+  addEllipses = TRUE,
+  title = "PCA - Biplot",
+  angle.var = 45,  
+  legend.title = "Cluster Groups"  
+)
+
+biplot
+# Add genotype labels to the data points
+biplot1 <- biplot + geom_text(data = genotype_data, aes(x = pca_result$x[, 1], y = pca_result$x[, 2], label = Genotype), size = 1.5, vjust = 1)
+biplot1
+#for hiding the ovelapped text and rotating the Compoennets
+biplot2<-biplot + geom_text(data = genotype_data, aes(x = pca_result$x[, 1], y = pca_result$x[, 2], label = Genotype,angle = 45), size = 2, vjust = -1, check_overlap = TRUE)
+biplot2
+
+
+#alternative code for the PCA variables directions
 fviz_pca_var(pca2,repel = TRUE)
 fviz_pca_var(pca2, col.var = "contrib",
              repel = TRUE,
